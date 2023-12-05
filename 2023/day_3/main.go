@@ -49,6 +49,15 @@ type Number struct {
 	y     int
 }
 
+func (n *Number) IsNeighborOf(p Position) bool  {
+  xmin := n.x[0] -1
+  xmax := n.x[len(n.x)-1] +1
+  ymin := n.y -1 
+  ymax := n.y +1 
+
+  return p.x >= xmin && p.x <= xmax && p.y >= ymin && p.y <= ymax
+}
+
 func (s *Number) GetNeighbors() []Position {
 	neighbors := make([]Position, 0)
 	xmin := s.x[0]
@@ -110,7 +119,6 @@ continue
 
 
   var counter int 
-  log.Printf("Engine state => %v", engine)
 
   for _, n := range numberMap {
 
@@ -125,8 +133,34 @@ continue
     counter += intValue
     
   }
+  var power int
+  for p,g := range engine {
+    if g.value != "*" {
+      continue
+    }
+    var neigbor = make([]Number, 0)
+    
+    for _,n := range numberMap {
+      if n.IsNeighborOf(p) {
+        neigbor = append(neigbor, n)
+      }
+    }
+
+    if len(neigbor) < 2 {
+      continue
+    }
+
+    var gearpower int = 1
+    for _, n := range neigbor {
+      value, _ := strconv.Atoi(n.value)
+      gearpower *= value
+    }
+    power += gearpower
+ 
+  }
 
   log.Printf("Result of sum : %v", counter)
+  log.Printf("Result of powers : %v", power)
 }
 
 func MoveLeft() {
