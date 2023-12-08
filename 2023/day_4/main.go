@@ -21,7 +21,6 @@ func (c *Card) GetNumberOfWinning() int  {
   count := 0
   for _, w := range c.winning {
     if slices.Contains(c.draw, w) {
-      log.Printf("%v contains %v", c.draw, w)
       count ++
     }
   }
@@ -29,6 +28,32 @@ func (c *Card) GetNumberOfWinning() int  {
  return count
 }
 
+func (c *Card) GetWinningMatches() []int  {
+  result := make([]int, 0)
+  for _, n := range c.draw {
+    if slices.Contains(c.winning, n) {
+      result = append(result, n)
+    }
+  }
+  return result
+}
+
+func (c *Card) GetPoints() int  { 
+    points := c.GetNumberOfWinning()
+    if points > 1 {
+      points = int(math.Pow(2,float64(points -1))) 
+    }
+  return points
+}
+
+func (c *Card) Copy() Card  {
+  return Card{
+    c.winning, 
+    c.draw,
+  }
+}
+
+var nbOfCopy = make(map[int]int, 0)
 func main()  {
   log.Printf("Day 4 : Scratchcard")
 
@@ -41,26 +66,33 @@ func main()  {
   scanner := bufio.NewScanner(file)
 
   total := 0
+
+  var totalPart2 int
+  var i int = 1;
   for scanner.Scan() {
     line := scanner.Text()
     if len(line)  <= 0 {
       continue
     }
-
     card := parseCard(line)
-    
-    points := card.GetNumberOfWinning()
-    if points > 1 {
-      points = int(math.Pow(2,float64(points -1))) 
+    nbOfCopy[i]++
+    nbOfMatches := card.GetNumberOfWinning()
+
+    for y := 1; y <= nbOfMatches; y++ {
+      idx := i+y
+      nbOfCopy[idx] += nbOfCopy[i]
     }
-    
-    log.Printf("Card = %v", points)
 
+    points := card.GetPoints()
+    totalPart2 += nbOfCopy[i]
     total += points
-
+    i++
   }
 
-  log.Printf("Total is : %v", total)
+
+
+  log.Printf("Total of part 1 is : %v", total)
+  log.Printf("Total of part 2 is : %v", totalPart2)
   
 }
 
